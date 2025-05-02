@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35931.197
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerraWeaver", "TerraWeaver.csproj", "{1630BD3B-9DCE-4583-A268-BCF3D839C312}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1630BD3B-9DCE-4583-A268-BCF3D839C312}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1630BD3B-9DCE-4583-A268-BCF3D839C312}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1630BD3B-9DCE-4583-A268-BCF3D839C312}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1630BD3B-9DCE-4583-A268-BCF3D839C312}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7A09199F-D062-4D33-A41B-B6AF9A9C1A32}
+	EndGlobalSection
+EndGlobal
