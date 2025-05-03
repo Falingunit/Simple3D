@@ -1,21 +1,17 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TerraWeaverGraphics;
+using TerraWeaverGraphics.Model;
 
-namespace TerraWeaver.TerraWeaverGraphics
+namespace TerraWeaverGraphics
 {
 	public class GraphicsManager
 	{
 		private Window window;
 
 		private List<GraphicsObject> _objects;
+		public List<Shader> _shaders = new List<Shader>();
 
-		private Shader _shader;
 		private Camera _camera;
 
 		private Matrix4 _projection;
@@ -40,13 +36,16 @@ namespace TerraWeaver.TerraWeaverGraphics
 		{
 			_objects.Add(obj);
 		}
-
 		public void AddObjects(GraphicsObject[] objects)
 		{
 			this._objects.AddRange(objects);
 		}
+		public void AddShader(Shader shader)
+        {
+            this._shaders.Add(shader);
+        }
 
-		public GraphicsObject CreateObject(Model model, Vector3? position, Quaternion? rotation)
+        public GraphicsObject CreateObject(Model.Model model, Vector3? position, Quaternion? rotation)
 		{
 			GraphicsObject obj = new GraphicsObject(model, position, rotation);
 			obj.OnLoad();
@@ -54,7 +53,7 @@ namespace TerraWeaver.TerraWeaverGraphics
 			return obj;
 		}
 
-		public GraphicsObject[] CreateObjects(Model model, Vector3[] positions, Quaternion[] rotations)
+		public GraphicsObject[] CreateObjects(Model.Model model, Vector3[] positions, Quaternion[] rotations)
 		{
 			GraphicsObject[] objects = new GraphicsObject[positions.Length];
 			if (positions.Length != rotations.Length)
@@ -71,29 +70,36 @@ namespace TerraWeaver.TerraWeaverGraphics
 
 		public void OnLoad()
 		{
-			this._shader = new Shader("Shaders/shader.vert", "Shaders/shader.frag");
 			this._camera = new Camera(Vector3.UnitZ * 5, Vector3.UnitY, -Vector3.UnitZ);
-
-			_shader.Use();
-
-			_projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f),
-				(float)window.Size.X / (float)window.Size.Y, 0.1f, 100.0f);
-			GL.UniformMatrix4(_shader.GetUniformLocation("projection"), true, ref _projection);
 
 			foreach (GraphicsObject obj in _objects)
 			{
 				obj.OnLoad();
 			}
-		}
 
-		public void OnRenderFrame()
+			//Set projection matrix
+            _projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f), (float)window.Size.X / (float)window.Size.Y, 0.1f, 100.0f);
+            
+			foreach (Shader shader in _shaders)
+			{
+				shader.OnLoad();
+				shader.Use();
+                GL.UniformMatrix4(shader.GetUniformLocation("projectionMatrix"), true, ref _projection);
+            }
+        }
+
+        public void OnRenderFrame()
 		{
 			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 			foreach (GraphicsObject obj in _objects)
 			{
 				Matrix4 view = _camera.View;
-				GL.UniformMatrix4(_shader.GetUniformLocation("view"), true, ref view);
-				obj.Draw(_shader);
+                foreach (Shader shader in _shaders)
+                {
+					shader.Use();
+                    GL.UniformMatrix4(shader.GetUniformLocation("viewMatrix"), true, ref view);
+                }
+				obj.Draw();
 			}
 			window.SwapBuffers();
 		}

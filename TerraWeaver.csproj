@@ -9,13 +9,20 @@
 
   <ItemGroup>
     <PackageReference Include="OpenTK" Version="4.9.4" />
+    <PackageReference Include="StbImageSharp" Version="2.30.15" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Shaders\shader.frag">
+    <None Update="Shaders\color.frag">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Shaders\shader.vert">
+    <None Update="Shaders\color.vert">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Shaders\texture.frag">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Shaders\texture.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

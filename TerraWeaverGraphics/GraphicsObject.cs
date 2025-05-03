@@ -1,9 +1,6 @@
 ﻿using OpenTK.Mathematics;
-using OpenTK.Graphics.OpenGL4;
-using OpenTK.Platform.Windows;
-using TerraWeaverGraphics;
 
-namespace TerraWeaver.TerraWeaverGraphics
+namespace TerraWeaverGraphics
 {
 	public class GraphicsObject
 	{
@@ -12,7 +9,7 @@ namespace TerraWeaver.TerraWeaverGraphics
 		private bool _dirty = true;
 		private Matrix4 _modelMatrix;
 
-		public Model Model;
+		public Model.Model Model;
 
 
 		public Vector3 Position
@@ -58,7 +55,7 @@ namespace TerraWeaver.TerraWeaverGraphics
 			}
 		}
 
-		public GraphicsObject(Model model, Vector3? position, Quaternion? rotation)
+		public GraphicsObject(Model.Model model, Vector3? position, Quaternion? rotation)
 		{
 			Model = model;
 			_position = position.HasValue ? position.Value : Vector3.Zero;
@@ -71,9 +68,9 @@ namespace TerraWeaver.TerraWeaverGraphics
 			_modelMatrix = Matrix4.CreateFromQuaternion(_rotation) * Matrix4.CreateTranslation(_position);
 		}
 
-		public void Draw(Shader shader)
+		public void Draw()
 		{
-			Model.Draw(shader, ModelMatrix);
+			Model.Draw(ModelMatrix);
 		}
 	}
 }

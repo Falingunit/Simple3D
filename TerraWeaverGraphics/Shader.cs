@@ -6,63 +6,80 @@ namespace TerraWeaverGraphics
 	{
 		private int Handle;
 
+        private string _vertexPath, _fragmentPath;
+
 		public Shader(string vertexPath, string fragmentPath)
 		{
-			int VertexShader, FragmentShader;
-
-			//Read shader files
-			string VertexShaderSource = File.ReadAllText(vertexPath);
-			string FragmentShaderSource = File.ReadAllText(fragmentPath);
-
-			//Create shaders and set source to the read shaders
-			VertexShader = GL.CreateShader(ShaderType.VertexShader);
-			FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-
-			GL.ShaderSource(VertexShader, VertexShaderSource);
-			GL.ShaderSource(FragmentShader, FragmentShaderSource);
-
-			//Compile vertex shader and check for errors
-			GL.CompileShader(VertexShader);
-			GL.GetShader(VertexShader, ShaderParameter.CompileStatus, out int success);
-			if (success == 0)
-			{
-				string infoLog = GL.GetShaderInfoLog(VertexShader);
-				Console.WriteLine(infoLog);
-			}
-
-			//Compile fragment shader and check for errors
-			GL.CompileShader(FragmentShader);
-			GL.GetShader(FragmentShader, ShaderParameter.CompileStatus, out success);
-			if (success == 0)
-			{
-				string infoLog = GL.GetShaderInfoLog(FragmentShader);
-				Console.WriteLine(infoLog);
-			}
-
-			Handle = GL.CreateProgram();
-
-			GL.AttachShader(Handle, VertexShader);
-			GL.AttachShader(Handle, FragmentShader);
-
-			GL.LinkProgram(Handle);
-
-			GL.GetProgram(Handle, GetProgramParameterName.LinkStatus, out success);
-			if (success == 0)
-			{
-				string infoLog = GL.GetProgramInfoLog(Handle);
-				Console.WriteLine(infoLog);
-			}
-
-			GL.DetachShader(Handle, VertexShader);
-			GL.DetachShader(Handle, FragmentShader);
-			GL.DeleteShader(FragmentShader);
-			GL.DeleteShader(VertexShader);
+            _vertexPath = vertexPath;
+            _fragmentPath = fragmentPath;
 		}
+
+        public void OnLoad()
+        {
+            string vertexShaderSource = File.ReadAllText(_vertexPath);
+            string fragmentShaderSource = File.ReadAllText(_fragmentPath);
+
+            CompileShader(vertexShaderSource, fragmentShaderSource);
+        }
+
+		private void CompileShader(string VertexShaderSource, string FragmentShaderSource)
+		{
+            int VertexShader, FragmentShader;
+            
+            //Create shaders and set source to the read shaders
+            VertexShader = GL.CreateShader(ShaderType.VertexShader);
+            FragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+
+            GL.ShaderSource(VertexShader, VertexShaderSource);
+            GL.ShaderSource(FragmentShader, FragmentShaderSource);
+
+            //Compile vertex shader and check for errors
+            GL.CompileShader(VertexShader);
+            GL.GetShader(VertexShader, ShaderParameter.CompileStatus, out int success);
+            if (success == 0)
+            {
+                string infoLog = GL.GetShaderInfoLog(VertexShader);
+                Console.WriteLine(infoLog);
+            }
+
+            //Compile fragment shader and check for errors
+            GL.CompileShader(FragmentShader);
+            GL.GetShader(FragmentShader, ShaderParameter.CompileStatus, out success);
+            if (success == 0)
+            {
+                string infoLog = GL.GetShaderInfoLog(FragmentShader);
+                Console.WriteLine(infoLog);
+            }
+
+            Handle = GL.CreateProgram();
+
+            GL.AttachShader(Handle, VertexShader);
+            GL.AttachShader(Handle, FragmentShader);
+
+            GL.LinkProgram(Handle);
+
+            GL.GetProgram(Handle, GetProgramParameterName.LinkStatus, out success);
+            if (success == 0)
+            {
+                string infoLog = GL.GetProgramInfoLog(Handle);
+                Console.WriteLine(infoLog);
+            }
+
+            GL.DetachShader(Handle, VertexShader);
+            GL.DetachShader(Handle, FragmentShader);
+            GL.DeleteShader(FragmentShader);
+            GL.DeleteShader(VertexShader);
+        }
 
 		public void Use()
 		{
 			GL.UseProgram(Handle);
 		}
+
+        public void SetInt(string name, int value)
+        {
+            GL.Uniform1(GetUniformLocation(name), value);
+        }
 
 		public int GetAttribLocation(string attribName)
 		{
@@ -99,5 +116,5 @@ namespace TerraWeaverGraphics
 			Dispose(true);
 			GC.SuppressFinalize(this);
 		}
-	}
+    }
 }

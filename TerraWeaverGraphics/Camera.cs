@@ -2,7 +2,7 @@
 using OpenTK.Mathematics;
 using System.ComponentModel.DataAnnotations;
 
-namespace TerraWeaver.TerraWeaverGraphics
+namespace TerraWeaverGraphics
 {
 	public class Camera
 	{
