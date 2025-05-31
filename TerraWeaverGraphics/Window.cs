@@ -10,6 +10,7 @@ using TerraWeaver.TerraWeaverGraphics;
 using TerraWeaverGraphics;
 using TerraWeaverGraphics.Model;
 using System.Drawing;
+using TerraWeaver.TerraWeaverGraphics.Model;
 
 namespace TerraWeaverGraphics
 {
@@ -104,6 +105,48 @@ namespace TerraWeaverGraphics
 		   20,21,22,20,22,23        // Bottom
 		};
 
+        private Vector3[] cubeNormals =
+		{
+			// Front face (Z+)
+			new Vector3(0.0f, 0.0f, 1.0f),
+			new Vector3(0.0f, 0.0f, 1.0f),
+			new Vector3(0.0f, 0.0f, 1.0f),
+			new Vector3(0.0f, 0.0f, 1.0f),
+
+			// Back face (Z-)
+			new Vector3(0.0f, 0.0f, -1.0f),
+			new Vector3(0.0f, 0.0f, -1.0f),
+			new Vector3(0.0f, 0.0f, -1.0f),
+			new Vector3(0.0f, 0.0f, -1.0f),
+
+			// Left face (X-)
+			new Vector3(-1.0f, 0.0f, 0.0f),
+			new Vector3(-1.0f, 0.0f, 0.0f),
+			new Vector3(-1.0f, 0.0f, 0.0f),
+			new Vector3(-1.0f, 0.0f, 0.0f),
+
+			// Right face (X+)
+			new Vector3(1.0f, 0.0f, 0.0f),
+			new Vector3(1.0f, 0.0f, 0.0f),
+			new Vector3(1.0f, 0.0f, 0.0f),
+			new Vector3(1.0f, 0.0f, 0.0f),
+
+			// Top face (Y+)
+			new Vector3(0.0f, 1.0f, 0.0f),
+			new Vector3(0.0f, 1.0f, 0.0f),
+			new Vector3(0.0f, 1.0f, 0.0f),
+			new Vector3(0.0f, 1.0f, 0.0f),
+
+			// Bottom face (Y-)
+			new Vector3(0.0f, -1.0f, 0.0f),
+			new Vector3(0.0f, -1.0f, 0.0f),
+			new Vector3(0.0f, -1.0f, 0.0f),
+			new Vector3(0.0f, -1.0f, 0.0f),
+		};
+
+
+        private ModelImporter modelImporter = new ModelImporter();
+
         private float speed = 1.5f;
 		private float sensitivity = 0.05f;
 
@@ -136,24 +179,56 @@ namespace TerraWeaverGraphics
 			InitShaders();
 
             graphicsManager.OnLoad();
+			graphicsManager.Camera.Position = new Vector3(0, 5, 2);
 			graphicsManager.Camera.PointAt(Vector3.Zero);
 			(yaw, pitch) = graphicsManager.Camera.GetYawAndPitch();
 			(yaw, pitch) = (MathHelper.RadiansToDegrees(yaw), MathHelper.RadiansToDegrees(pitch));
 
-			Texture texture = new Texture("Textures\\container.png", TextureUnit.Texture0);
-			TextureModel model2 = new TextureModel(cubeVerts, cubeIndices, texCoords, textureShader, texture);
-            model2.OnLoad();
+			colorShader.SetVector("ambientLight", new(1f));
+			colorShader.SetFloat("ambientIntensity", 0.8f);
 
-			for (int i = 0; i < 100; i++) graphicsManager.CreateObject(model2, new Vector3(1.1f * i, 0, 0), Quaternion.Identity);
+			textureShader.SetVector("ambientLight", new(1f));
+			textureShader.SetFloat("ambientIntensity", 0.8f);
+
+			GenerateTestModels();
+			GenerateTestLights();
 		}
 
-		private void InitShaders()
+		private void GenerateTestModels()
+		{
+			VertexColorModel boat = modelImporter.ImportVertexColorMesh("Models\\Boat.obj", colorShader);
+			graphicsManager.CreateObject(boat, new Vector3(0, 0, 0), Quaternion.Identity);
+
+			VertexColorModel light = modelImporter.ImportVertexColorMesh("Models\\Light.obj", colorShader, 0.2f);
+			light.Material = new Material(light.Material.Diffuse, light.Material.Specular, new Vector3(1f), light.Material.Shininess);
+			graphicsManager.CreateObject(light, new Vector3(0.0f, 3f, 0.0f), Quaternion.Identity);
+
+			TextureModel box = new TextureModel(cubeVerts, cubeIndices, texCoords, cubeNormals, textureShader);
+			box.TextureMaterial = new TextureMaterial(new Texture("Textures\\container2.png", TextureUnit.Texture0), new Texture("Textures\\container2_specular.png", TextureUnit.Texture1), new Texture("Textures\\blac.png", TextureUnit.Texture2), 32);
+            box.OnLoad();
+
+			TextureModel box2 = modelImporter.LoadTextureModel("Models\\Container.obj", textureShader, 0.01f);
+            graphicsManager.CreateObject(box, new Vector3(0.0f, 0.0f, 0.0f), Quaternion.Identity);
+
+            graphicsManager.CreateObject(box2, new Vector3(0.0f, 0.0f, 0.0f), Quaternion.Identity);
+        }
+
+        private void GenerateTestLights()
+		{
+			PointLight light = new PointLight(new Vector3(0.0f, 3f, 0.0f), new Vector3(1f), new Vector3(1.0f, 1.0f, 1.0f), 1f, 0.22f, 0.2f);
+			graphicsManager.AddPointLight(light);
+
+			DirectionalLight sun = new DirectionalLight((new Vector3(-1.0f, -0.5f, 0.0f)).Normalized(), new(0.7f, 0.6f, 0.2f), new(1.0f, 1.0f, 1.0f));
+            graphicsManager.AddDirectionalLight(sun);
+        }
+
+        private void InitShaders()
 		{
             textureShader = new Shader("Shaders\\texture.vert", "Shaders\\texture.frag");
             graphicsManager.AddShader(textureShader);
 
             colorShader = new Shader("Shaders\\color.vert", "Shaders\\color.frag");
-            graphicsManager.AddShader(colorShader);
+			graphicsManager.AddShader(colorShader);
         }
 
 		protected override void OnUpdateFrame(FrameEventArgs args)

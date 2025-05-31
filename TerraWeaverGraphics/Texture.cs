@@ -27,9 +27,9 @@ namespace TerraWeaverGraphics
             GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
         }
 
-        public void Use()
+        public void Use(TextureUnit? unit = null)
         {
-            GL.ActiveTexture(_unit);
+            if (unit.HasValue) GL.ActiveTexture(unit.Value); else GL.ActiveTexture(_unit);
             GL.BindTexture(TextureTarget.Texture2D, this.Handle);
         }
     }

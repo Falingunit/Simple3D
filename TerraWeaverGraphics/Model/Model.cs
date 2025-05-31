@@ -33,14 +33,7 @@ namespace TerraWeaverGraphics.Model
 			GL.DeleteBuffer(_ebo);
 		}
 
-		public virtual void Draw(Matrix4 model)
-		{
-			_shader.Use();
-			GL.UniformMatrix4(_shader.GetUniformLocation("modelMatrix"), true, ref model);
-			GL.BindVertexArray(_vao);
-			GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
-			GL.BindVertexArray(0);
-		}
+		public abstract void Draw(Matrix4 model);
 	}
 
 }

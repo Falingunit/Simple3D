@@ -1,5 +1,7 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using Assimp.Configs;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using TerraWeaver.TerraWeaverGraphics;
 using TerraWeaverGraphics;
 using TerraWeaverGraphics.Model;
 
@@ -10,6 +12,8 @@ namespace TerraWeaverGraphics
 		private Window window;
 
 		private List<GraphicsObject> _objects;
+		private List<PointLight> pointLights = new List<PointLight>();
+		private List<DirectionalLight> directionalLights = new List<DirectionalLight>();
 		public List<Shader> _shaders = new List<Shader>();
 
 		private Camera _camera;
@@ -43,6 +47,62 @@ namespace TerraWeaverGraphics
 		public void AddShader(Shader shader)
         {
             this._shaders.Add(shader);
+        }
+
+		public void AddPointLight(PointLight light)
+		{
+            pointLights.Add(light);
+			foreach (Shader shader in this._shaders)
+			{
+				shader.Use();
+				GL.Uniform1(shader.GetUniformLocation("pointLightCount"), pointLights.Count);
+				for (int i = 0; i < pointLights.Count; i++)
+				{
+					shader.SetPointLight(i, pointLights[i]);
+				}
+			}
+        }
+
+		public void AddDirectionalLight(DirectionalLight light)
+		{
+            directionalLights.Add(light);
+            foreach (Shader shader in this._shaders)
+            {
+                shader.Use();
+                GL.Uniform1(shader.GetUniformLocation("directionalLightCount"), directionalLights.Count);
+                for (int i = 0; i < directionalLights.Count; i++)
+                {
+                    shader.SetDirectionalLight(i, directionalLights[i]);
+                }
+            }
+        }
+
+		public void RemovePointLight(PointLight light)
+		{
+			pointLights.Remove(light);
+			foreach (Shader shader in this._shaders)
+			{
+                shader.Use();
+                GL.Uniform1(shader.GetUniformLocation("pointLightCount"), pointLights.Count);
+				for (int i = 0; i < pointLights.Count; i++)
+				{
+					shader.SetPointLight(i, pointLights[i]);
+				}
+			}
+        }
+
+        public void RemoveDirectionalLight(DirectionalLight light)
+        {
+            directionalLights.Remove(light);
+            foreach (Shader shader in this._shaders)
+            {
+                shader.Use();
+                GL.Uniform1(shader.GetUniformLocation("directionalLightCount"), directionalLights.Count);
+                for (int i = 0; i < directionalLights.Count; i++)
+                {
+                    shader.SetDirectionalLight(i, directionalLights[i]);
+                }
+            }
         }
 
         public GraphicsObject CreateObject(Model.Model model, Vector3? position, Quaternion? rotation)
@@ -97,6 +157,7 @@ namespace TerraWeaverGraphics
                 foreach (Shader shader in _shaders)
                 {
 					shader.Use();
+					GL.Uniform3(shader.GetUniformLocation("cameraPos"), _camera.Position);
                     GL.UniformMatrix4(shader.GetUniformLocation("viewMatrix"), true, ref view);
                 }
 				obj.Draw();
